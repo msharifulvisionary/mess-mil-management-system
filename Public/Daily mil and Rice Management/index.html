@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <!-- নিচের লাইনটি পরিবর্তন করা হয়েছে যেন মোবাইলে ডেক্সটপ ভিউ সরাসরি আসে -->
+    <!-- মোবাইলে ডেক্সটপ ভিউ দেখানোর জন্য নিচের লাইনটি পরিবর্তন করা হয়েছে -->
     <meta name="viewport" content="width=1200, user-scalable=yes">
     
-    <title>Smart Calculation Sheet</title>
+    <title>Daily Meal & Rice Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -13,8 +13,9 @@
     <style>
         :root {
             --primary-bg: #2c3e50;
-            --border-color: #bdc3c7;
-            --total-bg: #fff3cd;
+            --border-color: #7f8c8d;
+            --highlight: #ecf0f1;
+            --summary-bg: #fff3cd;
         }
 
         body {
@@ -27,22 +28,23 @@
             align-items: center;
         }
 
+        /* A4 Portrait Size */
         .a4-sheet {
-            width: 297mm;
-            min-height: 210mm;
+            width: 210mm;
+            min-height: 297mm;
             background: white;
-            padding: 10mm 15mm;
+            padding: 10mm 10mm;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             box-sizing: border-box;
             position: relative;
         }
 
-        /* Header Styles */
+        /* Header */
         .header-section {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             border-bottom: 3px solid var(--primary-bg);
-            padding-bottom: 10px;
+            padding-bottom: 5px;
         }
 
         .editable-header-text {
@@ -54,61 +56,62 @@
             margin: 0 auto;
         }
 
-        .main-title { font-size: 36px; font-weight: bold; margin-bottom: 5px; }
-        .sub-title { font-size: 22px; color: #333; font-weight: 600; }
+        .main-title { font-size: 30px; font-weight: bold; }
+        .sub-title { font-size: 18px; color: #444; margin-top: 2px; }
 
-        /* Meta & Footer Styles */
+        /* Meta Info & Footer (Same Style) */
         .info-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 15px;
-            margin-top: 30px;
+            margin-bottom: 10px;
             font-family: 'Tiro Bangla', serif;
-            font-size: 16px;
+            font-size: 14px;
         }
 
-        .info-box { display: flex; align-items: center; gap: 10px; }
+        .footer-row { margin-top: 30px; }
 
         .strong-input {
             border: none;
-            border-bottom: 2px solid #000;
-            font-size: 17px;
+            border-bottom: 1px solid #000;
+            font-size: 15px;
             font-weight: bold;
-            width: 200px;
-            padding: 2px 5px;
+            width: 150px;
+            padding: 1px 5px;
             outline: none;
             background: transparent;
             color: #000;
             font-family: 'Tiro Bangla', serif;
+            text-align: center;
         }
 
-        /* Table Styles */
+        /* Table Design */
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
+            font-size: 11px;
             table-layout: fixed;
-            margin-top: 10px;
+            margin-top: 5px;
         }
 
         th, td {
             border: 1px solid var(--border-color);
             text-align: center;
+            height: 20px;
             padding: 0;
-            height: 24px;
         }
 
         th {
             background-color: var(--primary-bg);
             color: white;
             font-weight: 500;
-            padding: 6px 0;
-            font-size: 13px;
+            font-family: 'Tiro Bangla', serif;
         }
 
-        th:first-child { width: 14%; }
-        th:last-child { width: 7%; }
+        /* Column Group Headers */
+        .col-group-header { font-size: 12px; padding: 4px 0; }
+        .sub-header { font-size: 10px; padding: 2px 0; background-color: #34495e; }
 
+        /* Inputs */
         .cell-input {
             width: 100%;
             height: 100%;
@@ -117,45 +120,51 @@
             outline: none;
             background: transparent;
             font-family: 'Roboto', sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             color: #000;
         }
 
-        .name-input {
-            text-align: left;
-            padding-left: 8px;
+        .date-cell { font-weight: bold; background-color: #f4f4f4; font-family: 'Roboto', sans-serif; }
+        .readonly-cell { background-color: #f8f9fa; font-weight: bold; color: #333; }
+        
+        /* Summary Section */
+        .summary-box {
+            margin-top: 20px;
+            border: 2px solid var(--primary-bg);
+            padding: 10px;
+            background-color: var(--summary-bg);
             font-family: 'Tiro Bangla', serif;
-            font-weight: bold;
         }
 
-        .cell-input:focus { background-color: #e3f2fd; }
-
-        .row-total {
-            background-color: var(--total-bg);
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
             font-weight: bold;
-            color: #d35400;
+            padding: 5px 0;
+            border-bottom: 1px dashed #ccc;
+        }
+        .summary-row:last-child { border-bottom: none; }
+
+        .summary-val { font-family: 'Roboto', sans-serif; font-size: 16px; color: #d35400; }
+
+        .extra-input {
+            width: 60px;
+            border: 1px solid #d35400;
+            text-align: center;
+            font-weight: bold;
+            background: white;
+            font-family: 'Roboto', sans-serif;
             font-size: 14px;
         }
 
-        .grand-total-row td {
-            background-color: var(--primary-bg);
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-            padding: 5px;
-            font-family: 'Tiro Bangla', serif;
-        }
-        
-        #grand-total-val { font-family: 'Roboto', sans-serif; font-size: 17px; color: #fff; }
-
         /* Controls */
         .controls { margin-top: 20px; display: flex; gap: 15px; }
-        .btn { padding: 12px 25px; font-size: 16px; border: none; border-radius: 6px; cursor: pointer; font-family: 'Tiro Bangla', serif; color: white; transition: 0.3s; }
+        .btn { padding: 10px 25px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; color: white; font-family: 'Tiro Bangla', serif; }
         .btn-download { background-color: #27ae60; }
-        .btn-download:hover { background-color: #219150; }
-        .btn-reset { background-color: #c0392b; }
-        .btn-reset:hover { background-color: #a93226; }
+        .btn-reset { background-color: #c3392b; }
 
         @media print {
             body { background: none; margin: 0; }
@@ -167,80 +176,99 @@
 <body>
 
     <div class="a4-sheet" id="sheet-content">
+        <!-- Header -->
         <div class="header-section">
             <div contenteditable="true" class="editable-header-text main-title">ছবিকুঞ্জ ছাত্রাবাস</div>
-            <div contenteditable="true" class="editable-header-text sub-title">দৈনিক মিলের হিসাব</div>
+            <div contenteditable="true" class="editable-header-text sub-title">দৈনিক মিল ও চালের হিসাব</div>
         </div>
 
-        <div class="info-row" style="margin-bottom: 5px;">
-            <div class="info-box">
-                <span>মাস ও সাল   :</span>
-                <input type="text" class="strong-input" placeholder="January 2026">
-            </div>
-            <div class="info-box">
-                <span>ম্যানেজারের নাম :</span>
-                <input type="text" class="strong-input" placeholder="নাম লিখুন">
-            </div>
+        <!-- Meta Info (Top) -->
+        <div class="info-row">
+            <div>মাস ও সাল: <input type="text" class="strong-input" placeholder="January 2026"></div>
+            <div>ম্যানেজারের নাম: <input type="text" class="strong-input" placeholder="নাম লিখুন"></div>
         </div>
 
+        <!-- Table -->
         <table>
             <thead>
                 <tr>
-                    <th>নাম</th>
-                    <script>
-                        for(let i=1; i<=31; i++) {
-                            document.write(`<th>${i}</th>`);
-                        }
-                    </script>
-                    <th>Total</th>
+                    <th rowspan="2" style="width: 8%;">তারিখ</th>
+                    <th colspan="2" class="col-group-header">সকাল</th>
+                    <th colspan="2" class="col-group-header">দুপুর</th>
+                    <th colspan="2" class="col-group-header">রাত</th>
+                    <th colspan="2" class="col-group-header" style="background-color: #2c3e50;">দৈনিক মোট</th>
+                </tr>
+                <tr>
+                    <th class="sub-header">মিল</th>
+                    <th class="sub-header">চাল (পট)</th>
+                    <th class="sub-header">মিল</th>
+                    <th class="sub-header">চাল (পট)</th>
+                    <th class="sub-header">মিল</th>
+                    <th class="sub-header">চাল (পট)</th>
+                    <th class="sub-header" style="background-color: #95a5a6;">মিল</th>
+                    <th class="sub-header" style="background-color: #95a5a6;">চাল</th>
                 </tr>
             </thead>
-            <tbody id="table-body"></tbody>
-            <tfoot>
-                <tr class="grand-total-row">
-                    <td colspan="32" style="text-align: right; padding-right: 15px;">সর্বমোট হিসাব:</td>
-                    <td id="grand-total-val">0</td>
-                </tr>
-            </tfoot>
+            <tbody id="table-body">
+                <!-- JS will generate 31 rows -->
+            </tbody>
         </table>
 
-        <div class="info-row">
-            <div class="info-box">
-                <span>প্রস্তুতকারক :</span>
-                <input type="text" class="strong-input" placeholder="স্বাক্ষর বা নাম">
+        <!-- Summary Calculation Box -->
+        <div class="summary-box">
+            <div class="summary-row">
+                <span>সারা মাসের মোট মিল:</span>
+                <span id="grand-total-meal" class="summary-val">0</span>
             </div>
-            <div class="info-box">
-                <span>তারিখ :</span>
-                <input type="text" class="strong-input" id="footer-date">
+            <div class="summary-row">
+                <span>সারা মাসের মোট চাল:</span>
+                <span id="grand-total-rice" class="summary-val">0</span>
             </div>
+            <div class="summary-row">
+                <span>অতিরিক্ত চাল (+):</span>
+                <span><input type="number" id="extra-rice" class="extra-input" placeholder="0" oninput="calculateSummary()"> পট</span>
+            </div>
+            <div class="summary-row" style="border-top: 2px solid #000; margin-top: 5px; padding-top: 5px;">
+                <span style="font-size: 16px; color: #2c3e50;">সর্বমোট চালের হিসাব:</span>
+                <span id="final-total-rice" class="summary-val" style="font-size: 18px; color: #27ae60;">0</span>
+            </div>
+        </div>
+
+        <!-- Footer (Matched Style with Header Meta) -->
+        <div class="info-row footer-row">
+            <div>প্রস্তুতকারক: <input type="text" class="strong-input" placeholder="স্বাক্ষর বা নাম"></div>
+            <div>তারিখ: <input type="text" class="strong-input" id="footer-date"></div>
         </div>
     </div>
 
+    <!-- Buttons -->
     <div class="controls">
         <button class="btn btn-reset" onclick="resetForm()">রিসেট করুন</button>
         <button class="btn btn-download" onclick="downloadSheet()">ডাউনলোড (HD Image)</button>
     </div>
 
     <script>
-        const ROW_COUNT = 27;
+        const DAYS_COUNT = 31;
 
         function initTable() {
             const tbody = document.getElementById('table-body');
             let html = '';
 
-            for(let r=0; r<ROW_COUNT; r++) {
+            for(let i=1; i<=DAYS_COUNT; i++) {
                 html += `<tr>`;
-                html += `<td><input type="text" class="cell-input name-input" placeholder="Name ${r+1}" 
-                        data-r="${r}" data-c="0" onkeydown="handleNav(event, ${r}, 0)"></td>`;
-                
-                for(let c=1; c<=31; c++) {
-                    html += `<td><input type="number" class="cell-input val-input" 
-                            data-r="${r}" data-c="${c}" 
-                            oninput="calculateRow(${r})" 
-                            onkeydown="handleNav(event, ${r}, ${c})"></td>`;
-                }
-                
-                html += `<td class="row-total" id="total-${r}">0</td>`;
+                html += `<td class="date-cell">${i}</td>`;
+                // Morning
+                html += `<td><input type="number" class="cell-input val-input" data-r="${i}" data-c="1" oninput="calculateRow(${i})" onkeydown="handleNav(event, ${i}, 1)"></td>`;
+                html += `<td><input type="number" class="cell-input val-input" data-r="${i}" data-c="2" oninput="calculateRow(${i})" onkeydown="handleNav(event, ${i}, 2)"></td>`;
+                // Noon
+                html += `<td><input type="number" class="cell-input val-input" data-r="${i}" data-c="3" oninput="calculateRow(${i})" onkeydown="handleNav(event, ${i}, 3)"></td>`;
+                html += `<td><input type="number" class="cell-input val-input" data-r="${i}" data-c="4" oninput="calculateRow(${i})" onkeydown="handleNav(event, ${i}, 4)"></td>`;
+                // Night
+                html += `<td><input type="number" class="cell-input val-input" data-r="${i}" data-c="5" oninput="calculateRow(${i})" onkeydown="handleNav(event, ${i}, 5)"></td>`;
+                html += `<td><input type="number" class="cell-input val-input" data-r="${i}" data-c="6" oninput="calculateRow(${i})" onkeydown="handleNav(event, ${i}, 6)"></td>`;
+                // Totals
+                html += `<td class="readonly-cell" id="day-meal-${i}">0</td>`;
+                html += `<td class="readonly-cell" id="day-rice-${i}">0</td>`;
                 html += `</tr>`;
             }
             tbody.innerHTML = html;
@@ -249,72 +277,73 @@
             document.getElementById('footer-date').value = d.toLocaleDateString('en-GB');
         }
 
+        function getVal(selector) {
+            let el = document.querySelector(selector);
+            if (!el) return 0;
+            let val = el.tagName === 'INPUT' ? el.value : el.innerText;
+            return parseFloat(val) || 0;
+        }
+
         function calculateRow(rowIdx) {
-            const inputs = document.querySelectorAll(`.val-input[data-r="${rowIdx}"]`);
-            let rowSum = 0;
-            inputs.forEach(input => {
-                let val = parseFloat(input.value);
-                if (!isNaN(val)) rowSum += val;
-            });
-            let displaySum = Number.isInteger(rowSum) ? rowSum : parseFloat(rowSum.toFixed(2));
-            document.getElementById(`total-${rowIdx}`).innerText = displaySum;
-            calculateGrandTotal();
+            let mM = getVal(`input[data-r="${rowIdx}"][data-c="1"]`);
+            let mR = getVal(`input[data-r="${rowIdx}"][data-c="2"]`);
+            let nM = getVal(`input[data-r="${rowIdx}"][data-c="3"]`);
+            let nR = getVal(`input[data-r="${rowIdx}"][data-c="4"]`);
+            let ntM = getVal(`input[data-r="${rowIdx}"][data-c="5"]`);
+            let ntR = getVal(`input[data-r="${rowIdx}"][data-c="6"]`);
+
+            let totalMeal = mM + nM + ntM;
+            let totalRice = mR + nR + ntR;
+
+            document.getElementById(`day-meal-${rowIdx}`).innerText = totalMeal;
+            document.getElementById(`day-rice-${rowIdx}`).innerText = totalRice;
+
+            calculateSummary();
         }
 
-        function calculateGrandTotal() {
-            let grandTotal = 0;
-            document.querySelectorAll('.val-input').forEach(input => {
-                let val = parseFloat(input.value);
-                if (!isNaN(val)) grandTotal += val;
-            });
-            let displayGrand = Number.isInteger(grandTotal) ? grandTotal : parseFloat(grandTotal.toFixed(2));
-            document.getElementById('grand-total-val').innerText = displayGrand;
+        function calculateSummary() {
+            let totalMonthMeal = 0;
+            let totalMonthRice = 0;
+
+            for(let i=1; i<=DAYS_COUNT; i++) {
+                totalMonthMeal += getVal(`#day-meal-${i}`);
+                totalMonthRice += getVal(`#day-rice-${i}`);
+            }
+
+            let extraRice = parseFloat(document.getElementById('extra-rice').value) || 0;
+            let finalRice = totalMonthRice + extraRice;
+
+            document.getElementById('grand-total-meal').innerText = Math.round(totalMonthMeal);
+            document.getElementById('grand-total-rice').innerText = Math.round(totalMonthRice);
+            document.getElementById('final-total-rice').innerText = Math.round(finalRice);
         }
 
-        // --- নেভিগেশন লজিক (আপডেট করা হয়েছে) ---
         function handleNav(e, r, c) {
-            const key = e.key; 
-            
-            // Enter (নিচে), ArrowDown (নিচে), ArrowUp (উপরে), ArrowLeft (বামে), ArrowRight (ডানে)
-            if (key === 'Enter' || key === 'ArrowDown' || key === 'ArrowUp' || key === 'ArrowLeft' || key === 'ArrowRight') {
-                e.preventDefault(); // ডিফল্ট অ্যাকশন বন্ধ করা
+            const key = e.key;
+            if (['Enter', 'ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+                e.preventDefault();
+                let nR = r, nC = c;
 
-                let nextR = r;
-                let nextC = c;
+                if (key === 'ArrowUp') nR = r - 1;
+                if (key === 'Enter' || key === 'ArrowDown') nR = r + 1;
+                if (key === 'ArrowLeft') nC = c - 1;
+                if (key === 'ArrowRight') nC = c + 1;
 
-                if (key === 'ArrowLeft') nextC = c - 1;
-                if (key === 'ArrowRight') nextC = c + 1;
-                if (key === 'ArrowUp') nextR = r - 1;
-                
-                // Enter অথবা Down Arrow চাপলে নিচে যাবে
-                if (key === 'Enter' || key === 'ArrowDown') nextR = r + 1;
+                if (nC < 1) nC = 1; if (nC > 6) nC = 6; 
+                if (nR < 1) nR = 1; if (nR > DAYS_COUNT) nR = DAYS_COUNT;
 
-                // সীমানা চেক (যাতে টেবিলের বাইরে না যায়)
-                if (nextC < 0) nextC = 0;
-                if (nextC > 31) nextC = 31;
-                if (nextR < 0) nextR = 0;
-                if (nextR >= ROW_COUNT) nextR = ROW_COUNT - 1;
-
-                // নতুন ঘরে ফোকাস করা
-                const target = document.querySelector(`input[data-r="${nextR}"][data-c="${nextC}"]`);
-                if (target) {
-                    target.focus();
-                }
+                const target = document.querySelector(`input[data-r="${nR}"][data-c="${nC}"]`);
+                if (target) { target.focus(); target.select(); }
             }
         }
 
         function downloadSheet() {
             const element = document.getElementById("sheet-content");
             window.scrollTo(0,0);
-            html2canvas(element, {
-                scale: 3, 
-                useCORS: true,
-                backgroundColor: "#ffffff",
-                height: element.offsetHeight,
-                windowHeight: element.offsetHeight
-            }).then(canvas => {
+            html2canvas(element, { scale: 3, useCORS: true, backgroundColor: "#ffffff" })
+            .then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'Chobikunjo_Report.png';
+                link.download = 'Daily_Meal_Rice_Log.png';
                 link.href = canvas.toDataURL("image/png");
                 link.click();
             });
@@ -322,11 +351,13 @@
 
         function resetForm() {
             if(confirm("সব ডাটা মুছে ফেলতে চান?")) {
-                document.querySelectorAll('input').forEach(i => i.value = '');
-                document.querySelectorAll('.row-total').forEach(e => e.innerText = '0');
-                document.getElementById('grand-total-val').innerText = '0';
-                const d = new Date();
-                document.getElementById('footer-date').value = d.toLocaleDateString('en-GB');
+                document.querySelectorAll('.val-input').forEach(i => i.value = '');
+                document.getElementById('extra-rice').value = '';
+                for(let i=1; i<=DAYS_COUNT; i++) {
+                    document.getElementById(`day-meal-${i}`).innerText = '0';
+                    document.getElementById(`day-rice-${i}`).innerText = '0';
+                }
+                calculateSummary();
             }
         }
 
