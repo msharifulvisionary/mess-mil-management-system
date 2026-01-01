@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advance Hostel Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --primary-bg: #2c3e50;
+            --border-color: #7f8c8d;
+            --highlight: #ecf0f1;
+            --due-color: #c0392b;   /* লাল (ম্যানেজার পাবে) */
+            --pay-color: #27ae60;   /* সবুজ (ম্যানেজার দিবে) */
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #eef2f3;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .a4-sheet {
+            width: 297mm;
+            min-height: 210mm;
+            background: white;
+            padding: 10mm 15mm;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Header */
+        .header-section {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 3px solid var(--primary-bg);
+            padding-bottom: 5px;
+        }
+
+        .editable-header-text {
+            font-family: 'Tiro Bangla', serif;
+            color: var(--primary-bg);
+            outline: none;
+            cursor: text;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .main-title { font-size: 34px; font-weight: bold; }
+        .sub-title { font-size: 20px; color: #444; margin-top: 5px; }
+
+        /* Meta Info & Footer (Same Design) */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-family: 'Tiro Bangla', serif;
+            font-size: 16px;
+        }
+
+        /* Footer margin fix */
+        .footer-row {
+            margin-top: 40px;
+        }
+
+        .info-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .strong-input {
+            border: none;
+            border-bottom: 2px solid #000;
+            font-size: 17px;
+            font-weight: bold;
+            width: 200px;
+            padding: 2px 5px;
+            outline: none;
+            background: transparent;
+            color: #000;
+            font-family: 'Tiro Bangla', serif;
+        }
+
+        /* Table Design */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            table-layout: fixed;
+            margin-top: 5px;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            text-align: center;
+            height: 24px;
+            padding: 0;
+        }
+
+        th {
+            background-color: var(--primary-bg);
+            color: white;
+            font-weight: 500;
+            padding: 6px 0;
+            font-size: 13px;
+            font-family: 'Tiro Bangla', serif;
+        }
+
+        /* Column Widths */
+        th:nth-child(1) { width: 4%; }  /* ক্রম */
+        th:nth-child(2) { width: 18%; } /* নাম */
+        th:nth-child(3) { width: 10%; } /* জমা */
+        th:nth-child(4) { width: 8%; }  /* মিল */
+        th:nth-child(5) { width: 10%; } /* মিল খরচ */
+        th:nth-child(6) { width: 10%; } /* অতিরিক্ত */
+        th:nth-child(7) { width: 10%; } /* মোট খরচ */
+        th:nth-child(8) { width: 11%; } /* পাবে */
+        th:nth-child(9) { width: 11%; } /* দিবে */
+
+        /* Inputs */
+        .cell-input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            text-align: center;
+            outline: none;
+            background: transparent;
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: #000;
+        }
+
+        .name-input {
+            text-align: left;
+            padding-left: 5px;
+            font-family: 'Tiro Bangla', serif;
+            font-weight: bold;
+        }
+
+        .readonly-cell {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Colors */
+        .mgr-receives { color: var(--due-color); }
+        .mgr-pays { color: var(--pay-color); }
+
+        /* Grand Total Row */
+        .grand-total-row td {
+            background-color: #dfe6e9;
+            font-weight: bold;
+            font-size: 14px;
+            color: #000;
+        }
+
+        /* Meal Rate Box */
+        .rate-section {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Tiro Bangla', serif;
+            background-color: #fff3cd;
+            padding: 10px;
+            border: 1px dashed #f39c12;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 5px;
+        }
+
+        .rate-input {
+            width: 80px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            border: 2px solid #f39c12;
+            border-radius: 4px;
+            padding: 5px;
+            font-family: 'Roboto', sans-serif;
+            outline: none;
+        }
+
+        /* Controls */
+        .controls { margin-top: 20px; display: flex; gap: 15px; }
+        .btn { padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; color: white; font-family: 'Tiro Bangla', serif; }
+        .btn-download { background-color: #27ae60; }
+        .btn-reset { background-color: #c3392b; }
+
+        @media print {
+            body { background: none; margin: 0; }
+            .controls { display: none; }
+            .a4-sheet { box-shadow: none; margin: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="a4-sheet" id="sheet-content">
+        <!-- Header -->
+        <div class="header-section">
+            <div contenteditable="true" class="editable-header-text main-title">ছবিকুঞ্জ ছাত্রাবাস</div>
+            <div contenteditable="true" class="editable-header-text sub-title">মাসিক মিলের হিসাব</div>
+        </div>
+
+        <!-- Meta Info (Header) -->
+        <div class="info-row">
+            <div class="info-box">
+                <span>মাস ও সাল:</span>
+                <input type="text" class="strong-input" placeholder="January 2026">
+            </div>
+            <div class="info-box">
+                <span>ম্যানেজারের নাম:</span>
+                <input type="text" class="strong-input" placeholder="নাম লিখুন">
+            </div>
+        </div>
+
+        <!-- Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th>ক্রম</th>
+                    <th>নাম</th>
+                    <th>টাকা জমা</th>
+                    <th>মোট মিল</th>
+                    <th>মিল খরচ</th>
+                    <th>অতিরিক্ত খরচ</th>
+                    <th>মোট খরচ</th>
+                    <th>ম্যানেজার পাবে</th>
+                    <th>ম্যানেজার দিবে</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+            <tfoot>
+                <tr class="grand-total-row">
+                    <td colspan="2" style="text-align: right; padding-right: 10px;">সর্বমোট:</td>
+                    <td id="gt-deposit">0</td>
+                    <td id="gt-meal">0</td>
+                    <td id="gt-meal-cost">0</td>
+                    <td id="gt-extra">0</td>
+                    <td id="gt-total-cost">0</td>
+                    <td id="gt-receives" style="color: #c0392b;">0</td>
+                    <td id="gt-pays" style="color: #27ae60;">0</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <!-- Meal Rate Box -->
+        <div class="rate-section">
+            <span style="font-size: 18px; font-weight: bold;">মিল রেট (Meal Rate):</span>
+            <input type="number" id="global-meal-rate" class="rate-input" placeholder="0" oninput="updateAllRows()">
+            <span style="font-size: 14px; color: #555;"></span>
+        </div>
+
+        <!-- Footer (Designed exactly like Header) -->
+        <div class="info-row footer-row">
+            <div class="info-box">
+                <span>প্রস্তুতকারক:</span>
+                <input type="text" class="strong-input" placeholder="স্বাক্ষর বা নাম">
+            </div>
+            <div class="info-box">
+                <span>তারিখ:</span>
+                <input type="text" class="strong-input" id="footer-date">
+            </div>
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="controls">
+        <button class="btn btn-reset" onclick="resetForm()">রিসেট করুন</button>
+        <button class="btn btn-download" onclick="downloadSheet()">ডাউনলোড (HD Image)</button>
+    </div>
+
+    <script>
+        const ROW_COUNT = 27;
+
+        function initTable() {
+            const tbody = document.getElementById('table-body');
+            let html = '';
+
+            for(let r=0; r<ROW_COUNT; r++) {
+                html += `<tr>`;
+                html += `<td>${r+1}</td>`; // ক্রম
+                html += `<td><input type="text" class="cell-input name-input" placeholder="নাম" data-r="${r}" data-c="1" onkeydown="handleNav(event, ${r}, 1)"></td>`;
+                html += `<td><input type="number" class="cell-input val-input" data-r="${r}" data-c="2" oninput="calculateRow(${r})" onkeydown="handleNav(event, ${r}, 2)"></td>`; // জমা
+                html += `<td><input type="number" class="cell-input val-input" data-r="${r}" data-c="3" oninput="calculateRow(${r})" onkeydown="handleNav(event, ${r}, 3)"></td>`; // মিল
+                html += `<td class="readonly-cell" id="meal-cost-${r}">0</td>`; // মিল খরচ (Auto)
+                html += `<td><input type="number" class="cell-input val-input" data-r="${r}" data-c="5" oninput="calculateRow(${r})" onkeydown="handleNav(event, ${r}, 5)"></td>`; // অতিরিক্ত
+                html += `<td class="readonly-cell" id="total-cost-${r}">0</td>`; // মোট খরচ (Auto)
+                html += `<td class="readonly-cell mgr-receives" id="mgr-receives-${r}">0</td>`; // পাবে
+                html += `<td class="readonly-cell mgr-pays" id="mgr-pays-${r}">0</td>`; // দিবে
+                html += `</tr>`;
+            }
+            tbody.innerHTML = html;
+
+            const d = new Date();
+            document.getElementById('footer-date').value = d.toLocaleDateString('en-GB');
+        }
+
+        function getVal(selector) {
+            let el = document.querySelector(selector);
+            if (!el) return 0;
+            let val = el.tagName === 'INPUT' ? el.value : el.innerText;
+            return parseFloat(val) || 0;
+        }
+
+        function calculateRow(r) {
+            let deposit = getVal(`input[data-r="${r}"][data-c="2"]`);
+            let totalMeal = getVal(`input[data-r="${r}"][data-c="3"]`);
+            let extraCost = getVal(`input[data-r="${r}"][data-c="5"]`);
+            let mealRate = parseFloat(document.getElementById('global-meal-rate').value) || 0;
+
+            // --- Rounding Logic Applied ---
+            
+            // 1. মিল খরচ = মোট মিল * রেট (Rounded)
+            let rawMealCost = totalMeal * mealRate;
+            let mealCost = Math.round(rawMealCost);
+            document.getElementById(`meal-cost-${r}`).innerText = mealCost;
+
+            // 2. মোট খরচ = মিল খরচ + অতিরিক্ত (Rounded)
+            let totalCost = Math.round(mealCost + extraCost);
+            document.getElementById(`total-cost-${r}`).innerText = totalCost;
+
+            // 3. ব্যালেন্স = জমা - মোট খরচ (Rounded)
+            let balance = Math.round(deposit - totalCost);
+
+            let mgrReceives = 0;
+            let mgrPays = 0;
+
+            if (balance < 0) {
+                mgrReceives = Math.abs(balance);
+            } else {
+                mgrPays = balance;
+            }
+
+            document.getElementById(`mgr-receives-${r}`).innerText = mgrReceives > 0 ? mgrReceives : '0';
+            document.getElementById(`mgr-pays-${r}`).innerText = mgrPays > 0 ? mgrPays : '0';
+
+            calculateGrandTotal();
+        }
+
+        function updateAllRows() {
+            for(let r=0; r<ROW_COUNT; r++) {
+                calculateRow(r);
+            }
+        }
+
+        function calculateGrandTotal() {
+            let sums = { deposit: 0, meal: 0, mealCost: 0, extra: 0, totalCost: 0, receives: 0, pays: 0 };
+
+            for(let r=0; r<ROW_COUNT; r++) {
+                sums.deposit += getVal(`input[data-r="${r}"][data-c="2"]`);
+                sums.meal += getVal(`input[data-r="${r}"][data-c="3"]`);
+                sums.extra += getVal(`input[data-r="${r}"][data-c="5"]`);
+                
+                sums.mealCost += getVal(`#meal-cost-${r}`);
+                sums.totalCost += getVal(`#total-cost-${r}`);
+                sums.receives += getVal(`#mgr-receives-${r}`);
+                sums.pays += getVal(`#mgr-pays-${r}`);
+            }
+
+            // টোটালগুলোও রাউন্ড করা হচ্ছে (যদিও যোগফল সাধারণত পূর্ণসংখ্যাই হবে)
+            document.getElementById('gt-deposit').innerText = Math.round(sums.deposit);
+            document.getElementById('gt-meal').innerText = sums.meal; // মিল সংখ্যা ফ্র্যাকশন হতে পারে, তাই রাউন্ড করলাম না, চাইলে করতে পারেন।
+            document.getElementById('gt-meal-cost').innerText = Math.round(sums.mealCost);
+            document.getElementById('gt-extra').innerText = Math.round(sums.extra);
+            document.getElementById('gt-total-cost').innerText = Math.round(sums.totalCost);
+            document.getElementById('gt-receives').innerText = Math.round(sums.receives);
+            document.getElementById('gt-pays').innerText = Math.round(sums.pays);
+        }
+
+        function handleNav(e, r, c) {
+            const key = e.key;
+            if (['Enter', 'ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+                e.preventDefault();
+                let nR = r, nC = c;
+
+                if (key === 'ArrowUp') nR = r - 1;
+                if (key === 'Enter' || key === 'ArrowDown') nR = r + 1;
+                
+                // শুধুমাত্র এডিটেবল ইনপুট কলামে নেভিগেট করবে
+                if (key === 'ArrowLeft') {
+                    if (c === 5) nC = 3;
+                    else if (c === 3) nC = 2;
+                    else if (c === 2) nC = 1;
+                }
+                if (key === 'ArrowRight') {
+                    if (c === 1) nC = 2;
+                    else if (c === 2) nC = 3;
+                    else if (c === 3) nC = 5;
+                }
+
+                if (nR >= 0 && nR < ROW_COUNT) {
+                    const target = document.querySelector(`input[data-r="${nR}"][data-c="${nC}"]`);
+                    if (target) target.focus();
+                }
+            }
+        }
+
+        function downloadSheet() {
+            const element = document.getElementById("sheet-content");
+            window.scrollTo(0,0);
+            html2canvas(element, { scale: 3, useCORS: true, backgroundColor: "#ffffff" })
+            .then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Monthly_Calculation_Full_Integer.png';
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
+        }
+
+        function resetForm() {
+            if(confirm("সব ডাটা মুছে ফেলতে চান?")) {
+                document.querySelectorAll('input').forEach(i => i.value = '');
+                updateAllRows();
+            }
+        }
+
+        window.onload = initTable;
+    </script>
+</body>
+</html>
