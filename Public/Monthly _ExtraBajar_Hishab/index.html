@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1200, user-scalable=yes">
+    
+    <title>Monthly Extra Cost Calculation (Rounded)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --primary-bg: #2c3e50;
+            --border-color: #95a5a6;
+            --highlight: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #eef2f3;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* A4 Page Styling */
+        .a4-sheet {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            padding: 15mm;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header-section {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 3px solid var(--primary-bg);
+            padding-bottom: 10px;
+        }
+
+        .editable-header-text {
+            font-family: 'Tiro Bangla', serif;
+            color: var(--primary-bg);
+            outline: none;
+            cursor: text;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .main-title { font-size: 32px; font-weight: bold; }
+        .sub-title { font-size: 20px; color: #c0392b; margin-top: 5px; }
+
+        /* Meta Inputs */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-family: 'Tiro Bangla', serif;
+            font-size: 16px;
+        }
+
+        .strong-input {
+            border: none;
+            border-bottom: 1px dashed #333;
+            font-size: 16px;
+            font-weight: bold;
+            width: 180px;
+            padding: 2px 5px;
+            outline: none;
+            text-align: center;
+            font-family: 'Tiro Bangla', serif;
+            background: transparent;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            text-align: center;
+            height: 32px;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: var(--primary-bg);
+            color: white;
+            font-weight: 500;
+            font-family: 'Tiro Bangla', serif;
+            font-size: 15px;
+        }
+
+        /* Input Styling */
+        .cell-input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            text-align: center;
+            outline: none;
+            background: transparent;
+            font-family: 'Tiro Bangla', sans-serif;
+            font-size: 15px;
+            color: #000;
+        }
+
+        /* Table Date Input */
+        input[type="date"] {
+            font-family: 'Roboto', sans-serif;
+            text-transform: uppercase;
+            color: #333;
+        }
+
+        .amount-input {
+            font-family: 'Roboto', sans-serif;
+            font-weight: bold;
+            color: #c0392b;
+        }
+
+        .serial-cell {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* Summary Dashboard Design */
+        .summary-dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-top: auto; 
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #fff5f5;
+            border: 1px solid #eebbba;
+            border-radius: 8px;
+        }
+
+        .summary-card {
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-title {
+            font-family: 'Tiro Bangla', serif;
+            font-size: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .card-value-box {
+            font-family: 'Roboto', sans-serif;
+            font-size: 22px;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        /* Specific Card Colors */
+        .card-cost { background-color: #fff3cd; border: 1px solid #ffeeba; }
+        .card-cost .card-value-box { color: #d35400; }
+
+        .card-boarder { background-color: #e2e3e5; border: 1px solid #d6d8db; }
+        .input-boarder {
+            width: 80%;
+            font-size: 20px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            border-bottom: 2px solid #6c757d;
+            outline: none;
+            font-weight: bold;
+            color: #343a40;
+        }
+
+        .card-rate { background-color: #f8d7da; border: 1px solid #f5c6cb; }
+        .card-rate .card-value-box { color: #721c24; }
+
+        /* Footer */
+        .footer-row {
+            margin-top: 10px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        /* Controls */
+        .controls { margin-top: 20px; display: flex; gap: 15px; }
+        .btn { padding: 12px 30px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; color: white; font-family: 'Tiro Bangla', serif; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .btn-download { background-color: #27ae60; }
+        .btn-reset { background-color: #c0392b; }
+
+        @media print {
+            body { background: none; margin: 0; padding: 0; }
+            .controls { display: none; }
+            .a4-sheet { box-shadow: none; margin: 0; border: none; width: 100%; height: auto;}
+        }
+    </style>
+</head>
+<body>
+
+    <div class="a4-sheet" id="sheet-content">
+        <!-- Header -->
+        <div class="header-section">
+            <div contenteditable="true" class="editable-header-text main-title">ছবিকুঞ্জ ছাত্রাবাস</div>
+            <div contenteditable="true" class="editable-header-text sub-title">মাসিক অতিরিক্ত খরচের হিসাব</div>
+        </div>
+
+        <!-- Meta Info -->
+        <div class="info-row">
+            <div>মাস ও সাল: <input type="text" class="strong-input" placeholder="জানুয়ারি ২০২৬"></div>
+            <div>ম্যানেজারের নাম: <input type="text" class="strong-input" placeholder="নাম লিখুন"></div>
+        </div>
+
+        <!-- Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 10%;">ক্রমিক</th>
+                    <th style="width: 25%;">তারিখ</th>
+                    <th style="width: 45%;">খরচের বিবরণ</th>
+                    <th style="width: 20%;">টাকা</th>
+                </tr>
+            </thead>
+            <tbody id="extra-cost-table-body">
+                <!-- JS will generate 20 rows -->
+            </tbody>
+        </table>
+
+        <!-- Summary Section -->
+        <div class="summary-dashboard">
+            <!-- Box 1: Total Extra Cost -->
+            <div class="summary-card card-cost">
+                <div class="card-title">সর্বমোট অতিরিক্ত খরচ</div>
+                <div class="card-value-box">
+                    <span id="display-total-cost">0</span> ৳
+                </div>
+            </div>
+
+            <!-- Box 2: Total Boarders -->
+            <div class="summary-card card-boarder">
+                <div class="card-title">মোট বর্ডার সংখ্যা</div>
+                <div class="card-value-box">
+                    <input type="number" id="total-boarder-input" class="input-boarder" placeholder="0" oninput="calculatePerPerson()">
+                </div>
+            </div>
+
+            <!-- Box 3: Per Person Cost (Rounded) -->
+            <div class="summary-card card-rate">
+                <div class="card-title">জনপ্রতি অতিরিক্ত খরচ </div>
+                <div class="card-value-box">
+                    <span id="per-person-result">0</span> ৳
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="info-row footer-row">
+            <div>প্রস্তুতকারক: <input type="text" class="strong-input" placeholder="স্বাক্ষর বা নাম"></div>
+            <div>তারিখ: <input type="text" class="strong-input" id="footer-date" placeholder="dd/mm/yyyy"></div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="btn btn-reset" onclick="resetForm()">রিসেট করুন</button>
+        <button class="btn btn-download" onclick="downloadSheet()">ডাউনলোড (Image)</button>
+    </div>
+
+    <script>
+        const TOTAL_ROWS = 20;
+
+        function initTable() {
+            const tbody = document.getElementById('extra-cost-table-body');
+            let html = '';
+
+            for(let i=1; i<=TOTAL_ROWS; i++) {
+                html += `<tr>`;
+                html += `<td class="serial-cell">${i}</td>`;
+                html += `<td><input type="date" class="cell-input" onkeydown="handleNav(event, ${i}, 1)"></td>`;
+                html += `<td><input type="text" class="cell-input" placeholder="" onkeydown="handleNav(event, ${i}, 2)"></td>`;
+                html += `<td><input type="number" class="cell-input amount-input" placeholder="-" oninput="calculateTotal()" onkeydown="handleNav(event, ${i}, 3)"></td>`;
+                html += `</tr>`;
+            }
+            tbody.innerHTML = html;
+
+            const d = new Date();
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            document.getElementById('footer-date').value = `${day}/${month}/${year}`;
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            const amountInputs = document.querySelectorAll('.amount-input');
+            
+            amountInputs.forEach(input => {
+                const val = parseFloat(input.value);
+                if (!isNaN(val)) total += val;
+            });
+
+            document.getElementById('display-total-cost').innerText = total;
+            calculatePerPerson();
+        }
+
+        function calculatePerPerson() {
+            const totalCost = parseFloat(document.getElementById('display-total-cost').innerText) || 0;
+            const totalBoarders = parseFloat(document.getElementById('total-boarder-input').value) || 0;
+            const resultDisplay = document.getElementById('per-person-result');
+
+            if (totalBoarders > 0) {
+                const perPerson = totalCost / totalBoarders;
+                // রাউন্ড ফিগার লজিক: 
+                // Math.round(5.5) = 6
+                // Math.round(5.4) = 5
+                resultDisplay.innerText = Math.round(perPerson);
+            } else {
+                resultDisplay.innerText = "0";
+            }
+        }
+
+        function handleNav(e, r, c) {
+            if (e.key === 'Enter' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                let nextRow = r + 1;
+                if (nextRow > TOTAL_ROWS) return;
+                
+                const table = document.getElementById('extra-cost-table-body');
+                const tr = table.rows[nextRow - 1];
+                if(tr) {
+                    const input = tr.cells[c].querySelector('input'); 
+                    if(input) input.focus();
+                }
+            }
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                let prevRow = r - 1;
+                if (prevRow < 1) return;
+                const table = document.getElementById('extra-cost-table-body');
+                const tr = table.rows[prevRow - 1];
+                if(tr) {
+                    const input = tr.cells[c].querySelector('input'); 
+                    if(input) input.focus();
+                }
+            }
+        }
+
+        function downloadSheet() {
+            const element = document.getElementById("sheet-content");
+            window.scrollTo(0,0);
+            html2canvas(element, { scale: 2, useCORS: true, backgroundColor: "#ffffff" })
+            .then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Extra_Cost_Calculation.png';
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
+        }
+
+        function resetForm() {
+            if(confirm("সব ডাটা মুছে ফেলতে চান?")) {
+                document.querySelectorAll('input').forEach(i => {
+                    if(i.id !== 'footer-date') i.value = ''; 
+                });
+                calculateTotal();
+            }
+        }
+
+        window.onload = initTable;
+    </script>
+</body>
+</html>
